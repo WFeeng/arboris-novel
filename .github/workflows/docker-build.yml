@@ -34,7 +34,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ./deploy/Dockerfile
           push: true
           # 这里指定同时构建 amd64 和 arm64，你的 Oracle 机器用 arm64，其他机器用 amd64
           platforms: linux/amd64,linux/arm64
