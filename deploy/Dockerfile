@@ -11,7 +11,7 @@ WORKDIR /frontend
 # 复制前端依赖文件
 COPY frontend/package*.json ./
 
-RUN npm install
+# RUN npm install
 
 # 安装前端依赖
 RUN npm ci --prefer-offline --no-audit
