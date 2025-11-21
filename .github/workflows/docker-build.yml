@@ -1,0 +1,42 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches: [ "main", "master" ] # 监听主分支代码变动
+  workflow_dispatch: # 允许手动点击按钮触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 拉取代码
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. 设置 QEMU (这是构建 ARM 镜像的关键！因为 GitHub 服务器是 AMD64 的，需要模拟器)
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      # 3. 设置 Docker Buildx (用于多架构构建)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 4. 登录 Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 5. 构建并推送
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          # 这里指定同时构建 amd64 和 arm64，你的 Oracle 机器用 arm64，其他机器用 amd64
+          platforms: linux/amd64,linux/arm64
+          # 镜像标签：你的用户名/仓库名:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/arboris-novel:latest
